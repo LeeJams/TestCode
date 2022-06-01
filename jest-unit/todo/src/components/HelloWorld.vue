@@ -1,58 +1,85 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div class="home">
+    <div>
+      <h3>To-Do-List</h3>
+      <hr />
+      <!-- <AddToDo /> -->
+      <input
+        type="text"
+        class="w-50"
+        placeholder="할 일을 입력해주세요."
+        @keyup.enter="addToDo"
+        v-model="todoText"
+        element-test="todoInput"
+      />
+      <hr />
+      <h6>오늘 할 일</h6>
+      <ToDoList
+        v-for="todo in todos"
+        :key="todo.id"
+        :todo="todo"
+        @toggle-Checkbox="toggleCheckbox"
+        @click-delete="deleteToDo"
+      />
+    </div>
+    <hr />
+    <div>
+      <h6>완료 목료</h6>
+      <p v-for="done in dones" :key="done.id">
+        {{ done.text }} <span>{{ done.date }}</span>
+      </p>
+    </div>
   </div>
 </template>
 
 <script>
+import ToDoList from "@/components/ToDoList";
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+  components: {
+    ToDoList,
+  },
+  data() {
+    return {
+      todos: [
+        { id: 1, text: "buy a car", checked: false, date: "2020/9/15" },
+        // { id: 2, text: "play the game", checked: false, date: "2020/9/15" },
+      ],
+      dones: [],
+      todoText: "",
+    };
+  },
+  methods: {
+    addToDo(e) {
+      var date = new Date();
+      this.todos.push({
+        id: this.todos.length + 1,
+        text: e.target.value,
+        checked: false,
+        date:
+          date.getFullYear() +
+          "/" +
+          (date.getMonth() + 1) +
+          "/" +
+          date.getDate(),
+      });
+      this.todoText = "";
+    },
+    toggleCheckbox({ id, checked }) {
+      console.log(id, checked);
+      const index = this.todos.findIndex((todo) => {
+        return todo.id == id;
+      });
+      this.todos[index].checked = checked;
+      this.dones.push({
+        id: id,
+        text: this.todos[index].text,
+        date: this.todos[index].date,
+      });
+      this.todos = this.todos.filter((todo) => todo.id != id);
+    },
+    deleteToDo(id) {
+      this.todos = this.todos.filter((todo) => todo.id != id);
+    },
+  },
+};
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
